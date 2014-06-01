@@ -70,7 +70,7 @@ describe('ReactDOMComponent', function() {
     });
 
     it("should update styles when mutating style object", function() {
-      var styles = { display: 'none', fontFamily: 'Arial', opacity: 0 };
+      var styles = { display: 'none', fontFamily: 'Arial', lineHeight: 1.2 };
       var stub = ReactTestUtils.renderIntoDocument(<div style={styles} />);
 
       var stubStyle = stub.getDOMNode().style;
@@ -82,21 +82,21 @@ describe('ReactDOMComponent', function() {
       stub.receiveComponent({props: { style: styles }}, transaction);
       expect(stubStyle.display).toEqual('block');
       expect(stubStyle.fontFamily).toEqual('Arial');
-      expect(stubStyle.opacity).toEqual('0');
+      expect(stubStyle.lineHeight).toEqual('1.2');
 
       styles.fontFamily = 'Helvetica';
 
       stub.receiveComponent({props: { style: styles }}, transaction);
       expect(stubStyle.display).toEqual('block');
       expect(stubStyle.fontFamily).toEqual('Helvetica');
-      expect(stubStyle.opacity).toEqual('0');
+      expect(stubStyle.lineHeight).toEqual('1.2');
 
-      styles.opacity = 0.5;
+      styles.lineHeight = 0.5;
 
       stub.receiveComponent({props: { style: styles }}, transaction);
       expect(stubStyle.display).toEqual('block');
       expect(stubStyle.fontFamily).toEqual('Helvetica');
-      expect(stubStyle.opacity).toEqual('0.5');
+      expect(stubStyle.lineHeight).toEqual('0.5');
     });
 
     it("should update styles if initially null", function() {
@@ -342,6 +342,26 @@ describe('ReactDOMComponent', function() {
         'Invariant Violation: The `style` prop expects a mapping from style ' +
         'properties to values, not a string.'
       );
+    });
+
+    it("should execute custom event plugin listening behavior", function() {
+      var React = require('React');
+      var SimpleEventPlugin = require('SimpleEventPlugin');
+
+      SimpleEventPlugin.didPutListener = mocks.getMockFunction();
+      SimpleEventPlugin.willDeleteListener = mocks.getMockFunction();
+
+      var container = document.createElement('div');
+      React.renderComponent(
+        <div onClick={() => true} />,
+        container
+      );
+
+      expect(SimpleEventPlugin.didPutListener.mock.calls.length).toBe(1);
+
+      React.unmountComponentAtNode(container);
+
+      expect(SimpleEventPlugin.willDeleteListener.mock.calls.length).toBe(1);
     });
   });
 

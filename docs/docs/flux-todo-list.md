@@ -74,13 +74,6 @@ var _addPromise = function(callback, payload) {
   }));
 };
 
-/**
- * Empty the queue of callback invocation promises.
- */
-var _clearPromises = function() {
-  _promises = [];
-};
-
 var Dispatcher = function() {};
 Dispatcher.prototype = merge(Dispatcher.prototype, {
 
@@ -99,12 +92,27 @@ Dispatcher.prototype = merge(Dispatcher.prototype, {
    * @param  {object} payload The data from the action.
    */
   dispatch: function(payload) {
-    _callbacks.forEach(function(callback) {
-      _addPromise(callback, payload);
+    // First create array of promises for callbacks to reference.
+    var resolves = [];
+    var rejects = [];
+    _promises = _callbacks.map(function(_, i) {
+      return new Promise(function(resolve, reject) {
+        resolves[i] = resolve;
+        rejects[i] = reject;
+      });
     });
-    Promise.all(_promises).then(_clearPromises);
+    // Dispatch to callbacks and resolve/reject promises.
+    _callbacks.forEach(function(callback, i) {
+      // Callback can return an obj, to resolve, or a promise, to chain.
+      // See waitFor() for why this might be useful.
+      Promise.resolve(callback(payload)).then(function() {
+        resolves[i](payload);
+      }, function() {
+        rejects[i](new Error('Dispatcher callback unsuccessful'));
+      });
+    });
+    _promises = [];
   }
-   
 }); 
  
 module.exports = Dispatcher; 
@@ -237,7 +245,7 @@ module.exports = TodoStore;
 
 There are a few important things to note in the above code. To start, we are maintaining a private data structure called _todos. This object contains all the individual to-do items. Because this variable lives outside the class, but within the closure of the module, it remains private — it cannot be directly changed from the outside. This helps us preserve a distinct input/output interface for the flow of data by making it impossible to update the store without using an action. 
  
-Another important part is the registration of the store's callback with the dispatcher. We pass in our payload handling callback to the dispatcher and preserve the index that this store has in the dispatcher's registry. The callback function currently only handles one actionType, but later we can add as many as we need. 
+Another important part is the registration of the store's callback with the dispatcher. We pass in our payload handling callback to the dispatcher and preserve the index that this store has in the dispatcher's registry. The callback function currently only handles two actionTypes, but later we can add as many as we need. 
  
  
 Listening to Changes with a Controller-View 
@@ -583,7 +591,7 @@ Adding Dependency Management to the Dispatcher
 
 As I said previously, our Dispatcher implementation is a bit naive. It's pretty good, but it will not suffice for most applications. We need a way to be able to manage dependencies between Stores. Let's add that functionality with a waitFor() method within the main body of the Dispatcher class. 
 
-We'll need another public method, waitFor(). 
+We'll need another public method, waitFor(). Note that it returns a Promise that can in turn be returned from the Store callback.
 
 ```javascript
   /**
@@ -591,10 +599,10 @@ We'll need another public method, waitFor().
    * @param  {function} callback
    */
   waitFor: function(promiseIndexes, callback) {
-    var selectedPromises = _promises.filter(function(/*object*/ _, /*number*/ j) {
-      return promiseIndexes.indexOf(j) !== -1;
+    var selectedPromises = promiseIndexes.map(function(index) {
+      return _promises[index];
     });
-    Promise.all(selectedPromises).then(callback);
+    return Promise.all(selectedPromises).then(callback);
   }
 ``` 
 
