@@ -97,6 +97,11 @@ describe('ReactDOMComponent', function() {
       expect(stubStyle.display).toEqual('block');
       expect(stubStyle.fontFamily).toEqual('Helvetica');
       expect(stubStyle.lineHeight).toEqual('0.5');
+
+      stub.receiveComponent({props: { style: undefined }}, transaction);
+      expect(stubStyle.display).toBe('');
+      expect(stubStyle.fontFamily).toBe('');
+      expect(stubStyle.lineHeight).toBe('');
     });
 
     it("should update styles if initially null", function() {
@@ -343,26 +348,6 @@ describe('ReactDOMComponent', function() {
         'properties to values, not a string.'
       );
     });
-
-    it("should execute custom event plugin listening behavior", function() {
-      var React = require('React');
-      var SimpleEventPlugin = require('SimpleEventPlugin');
-
-      SimpleEventPlugin.didPutListener = mocks.getMockFunction();
-      SimpleEventPlugin.willDeleteListener = mocks.getMockFunction();
-
-      var container = document.createElement('div');
-      React.renderComponent(
-        <div onClick={() => true} />,
-        container
-      );
-
-      expect(SimpleEventPlugin.didPutListener.mock.calls.length).toBe(1);
-
-      React.unmountComponentAtNode(container);
-
-      expect(SimpleEventPlugin.willDeleteListener.mock.calls.length).toBe(1);
-    });
   });
 
   describe('updateComponent', function() {
@@ -403,7 +388,7 @@ describe('ReactDOMComponent', function() {
   describe('unmountComponent', function() {
     it("should clean up listeners", function() {
       var React = require('React');
-      var ReactEventEmitter = require('ReactEventEmitter');
+      var ReactBrowserEventEmitter = require('ReactBrowserEventEmitter');
       var ReactMount = require('ReactMount');
 
       var container = document.createElement('div');
@@ -416,13 +401,13 @@ describe('ReactDOMComponent', function() {
       var rootNode = instance.getDOMNode();
       var rootNodeID = ReactMount.getID(rootNode);
       expect(
-        ReactEventEmitter.getListener(rootNodeID, 'onClick')
+        ReactBrowserEventEmitter.getListener(rootNodeID, 'onClick')
       ).toBe(callback);
 
       React.unmountComponentAtNode(container);
 
       expect(
-        ReactEventEmitter.getListener(rootNodeID, 'onClick')
+        ReactBrowserEventEmitter.getListener(rootNodeID, 'onClick')
       ).toBe(undefined);
     });
   });

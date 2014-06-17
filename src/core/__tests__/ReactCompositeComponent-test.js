@@ -376,6 +376,29 @@ describe('ReactCompositeComponent', function() {
 
   });
 
+  it('should auto bind before getDefaultProps', function() {
+    var calls = 0;
+    var Component = React.createClass({
+      getDefaultProps: function() {
+        return {
+          onClick: this.defaultClickHandler
+        };
+      },
+      defaultClickHandler: function() {
+        expect(this).toBe(instance);
+        calls++;
+      },
+      render: function() {
+        return <div onClick={this.props.onClick}></div>;
+      }
+    });
+    var instance = ReactTestUtils.renderIntoDocument(<Component />);
+    var handler = instance.props.onClick;
+    // Call handler with no context
+    handler();
+    expect(calls).toBe(1);
+  });
+
   it('should use default values for undefined props', function() {
     var Component = React.createClass({
       getDefaultProps: function() {
@@ -1178,7 +1201,10 @@ describe('ReactCompositeComponent', function() {
         abc: 'def',
         def: 0,
         ghi: null,
-        jkl: 'mno'
+        jkl: 'mno',
+        pqr: function() {
+          return this;
+        }
       },
 
       render: function() {
@@ -1195,6 +1221,8 @@ describe('ReactCompositeComponent', function() {
     expect(Component.ghi).toBe(null);
     expect(instance.constructor.jkl).toBe('mno');
     expect(Component.jkl).toBe('mno');
+    expect(instance.constructor.pqr()).toBe(Component.type);
+    expect(Component.pqr()).toBe(Component.type);
   });
 
   it('should support statics in mixins', function() {
