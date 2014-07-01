@@ -25,66 +25,66 @@ var CHANGE_EVENT = 'change';
 
 var _todos = {};
 
-/**
- * Create a TODO item.
- * @param  {string} text The content of the TODO
- */
-function create(text) {
-  // Hand waving here -- not showing how this interacts with XHR or persistent
-  // server-side storage.
-  // Using the current timestamp in place of a real id.
-  var id = Date.now();
-  _todos[id] = {
-    id: id,
-    complete: false,
-    text: text
-  };
-}
-
-/**
- * Update a TODO item.
- * @param  {string} id 
- * @param {object} updates An object literal containing only the data to be 
- *     updated.
- */
-function update(id, updates) {
-  _todos[id] = merge(_todos[id], updates);
-}
-
-/**
- * Update all of the TODO items with the same object. 
- *     the data to be updated.  Used to mark all TODOs as completed.
- * @param  {object} updates An object literal containing only the data to be 
- *     updated.
-
- */
-function updateAll(updates) {
-  for (var id in _todos) {
-    update(id, updates);
-  }
-}
-
-/**
- * Delete a TODO item.
- * @param  {string} id
- */
-function destroy(id) {
-  delete _todos[id];
-}
-
-/**
- * Delete all the completed TODO items.
- */
-function destroyCompleted() {
-  for (var id in _todos) {
-    if (_todos[id].complete) {
-      destroy(id);
-    }
-  }
-}
-
 var TodoStore = merge(EventEmitter.prototype, {
-  
+  /**
+   * Create a TODO item.
+   * @param  {string} text The content of the TODO
+   */
+  create: function(text) {
+    // Hand waving here -- not showing how this interacts with XHR or persistent
+    // server-side storage.
+    // Using the current timestamp in place of a real id.
+    var id = Date.now();
+    _todos[id] = {
+      id: id,
+      complete: false,
+      text: text
+    };
+
+  },
+
+  /**
+   * Update a TODO item.
+   * @param  {string} id
+   * @param {object} updates An object literal containing only the data to be
+   *     updated.
+   */
+  update: function(id, updates) {
+    _todos[id] = merge(_todos[id], updates);
+  },
+
+  /**
+   * Update all of the TODO items with the same object.
+   *     the data to be updated.  Used to mark all TODOs as completed.
+   * @param  {object} updates An object literal containing only the data to be
+   *     updated.
+
+   */
+  updateAll: function(updates) {
+    for (var id in _todos) {
+      update(id, updates);
+    }
+  },
+
+  /**
+   * Delete a TODO item.
+   * @param  {string} id
+   */
+  destroy: function(id) {
+    delete _todos[id];
+  },
+
+  /**
+   * Delete all the completed TODO items.
+   */
+  destroyCompleted: function() {
+    for (var id in _todos) {
+      if (_todos[id].complete) {
+        destroy(id);
+      }
+    }
+  },
+
   /**
    * Tests whether all the remaining TODO items are marked as completed.
    * @return {booleam}
