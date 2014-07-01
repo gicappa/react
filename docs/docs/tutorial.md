@@ -22,7 +22,7 @@ It'll also have a few neat features:
 
 ### Want to skip all this and just see the source?
 
-[It's all on GitHub.](https://github.com/petehunt/react-tutorial)
+[It's all on GitHub.](https://github.com/reactjs/react-tutorial)
 
 ### Getting started
 
@@ -40,9 +40,7 @@ For this tutorial we'll use prebuilt JavaScript files on a CDN. Open up your fav
   <body>
     <div id="content"></div>
     <script type="text/jsx">
-      /**
-       * @jsx React.DOM
-       */
+      /** @jsx React.DOM */
       // The above declaration must remain intact at the top of the script.
       // Your code here
     </script>
@@ -91,7 +89,7 @@ The first thing you'll notice is the XML-ish syntax in your JavaScript. We have 
 var CommentBox = React.createClass({displayName: 'CommentBox',
   render: function() {
     return (
-      React.DOM.div({className: "commentBox"}, 
+      React.DOM.div({className: "commentBox"},
         "Hello, world! I am a CommentBox."
       )
     );
@@ -303,12 +301,16 @@ React.renderComponent(
 
 Now that the data is available in the `CommentList`, let's render the comments dynamically:
 
-```javascript{4-6,9}
+```javascript{4-10,13}
 // tutorial10.js
 var CommentList = React.createClass({
   render: function() {
     var commentNodes = this.props.data.map(function (comment) {
-      return <Comment author={comment.author}>{comment.text}</Comment>;
+      return (
+        <Comment author={comment.author}>
+          {comment.text}
+        </Comment>
+      );
     });
     return (
       <div className="commentList">
@@ -473,7 +475,7 @@ var CommentForm = React.createClass({
 
 Let's make the form interactive. When the user submits the form, we should clear it, submit a request to the server, and refresh the list of comments. To start, let's listen for the form's submit event and clear it.
 
-```javascript{3-13,16-17,21}
+```javascript{3-13,16-18}
 // tutorial16.js
 var CommentForm = React.createClass({
   handleSubmit: function() {
@@ -491,11 +493,7 @@ var CommentForm = React.createClass({
     return (
       <form className="commentForm" onSubmit={this.handleSubmit}>
         <input type="text" placeholder="Your name" ref="author" />
-        <input
-          type="text"
-          placeholder="Say something..."
-          ref="text"
-        />
+        <input type="text" placeholder="Say something..." ref="text" />
         <input type="submit" value="Post" />
       </form>
     );
@@ -519,7 +517,7 @@ When a user submits a comment, we will need to refresh the list of comments to i
 
 We need to pass data from the child component to its parent. We do this by passing a `callback` in props from parent to child:
 
-```javascript{15-17,31}
+```javascript{15-17,30}
 // tutorial17.js
 var CommentBox = React.createClass({
   loadCommentsFromServer: function() {
@@ -549,9 +547,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments</h1>
         <CommentList data={this.state.data} />
-        <CommentForm
-          onCommentSubmit={this.handleCommentSubmit}
-        />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
   }
@@ -575,11 +571,7 @@ var CommentForm = React.createClass({
     return (
       <form className="commentForm" onSubmit={this.handleSubmit}>
         <input type="text" placeholder="Your name" ref="author" />
-        <input
-          type="text"
-          placeholder="Say something..."
-          ref="text"
-        />
+        <input type="text" placeholder="Say something..." ref="text" />
         <input type="submit" value="Post" />
       </form>
     );
@@ -630,9 +622,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments</h1>
         <CommentList data={this.state.data} />
-        <CommentForm
-          onCommentSubmit={this.handleCommentSubmit}
-        />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
   }
@@ -687,9 +677,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments</h1>
         <CommentList data={this.state.data} />
-        <CommentForm
-          onCommentSubmit={this.handleCommentSubmit}
-        />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     );
   }

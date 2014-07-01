@@ -129,7 +129,7 @@ describe('ReactCompositeComponent', function() {
       .toBeDOMComponentWithTag('a');
   });
 
-  it('should render null and false as a script tag under the hood', () => {
+  it('should render null and false as a noscript tag under the hood', () => {
     var Component1 = React.createClass({
       render: function() {
         return null;
@@ -145,10 +145,10 @@ describe('ReactCompositeComponent', function() {
     var instance2 = ReactTestUtils.renderIntoDocument(<Component2 />);
     reactComponentExpect(instance1)
       .expectRenderedChild()
-      .toBeDOMComponentWithTag('script');
+      .toBeDOMComponentWithTag('noscript');
     reactComponentExpect(instance2)
       .expectRenderedChild()
-      .toBeDOMComponentWithTag('script');
+      .toBeDOMComponentWithTag('noscript');
   });
 
   it('should still throw when rendering to undefined', () => {
@@ -376,27 +376,17 @@ describe('ReactCompositeComponent', function() {
 
   });
 
-  it('should auto bind before getDefaultProps', function() {
-    var calls = 0;
+  it('should not pass this to getDefaultProps', function() {
     var Component = React.createClass({
       getDefaultProps: function() {
-        return {
-          onClick: this.defaultClickHandler
-        };
-      },
-      defaultClickHandler: function() {
-        expect(this).toBe(instance);
-        calls++;
+        expect(this.render).not.toBeDefined();
+        return {};
       },
       render: function() {
-        return <div onClick={this.props.onClick}></div>;
+        return <div />;
       }
     });
-    var instance = ReactTestUtils.renderIntoDocument(<Component />);
-    var handler = instance.props.onClick;
-    // Call handler with no context
-    handler();
-    expect(calls).toBe(1);
+    ReactTestUtils.renderIntoDocument(<Component />);
   });
 
   it('should use default values for undefined props', function() {
@@ -892,6 +882,38 @@ describe('ReactCompositeComponent', function() {
     expect(React.isValidClass(FnComponent)).toBe(false);
     expect(React.isValidClass(NullComponent)).toBe(false);
     expect(React.isValidClass(TrickFnComponent)).toBe(false);
+  });
+
+  it('should warn when shouldComponentUpdate() returns undefined', function() {
+    var warn = console.warn;
+    console.warn = mocks.getMockFunction();
+
+    try {
+      var Component = React.createClass({
+        getInitialState: function () {
+          return {bogus: false};
+        },
+
+        shouldComponentUpdate: function() {
+          return undefined;
+        },
+
+        render: function() {
+          return <div />;
+        }
+      });
+
+      var instance = ReactTestUtils.renderIntoDocument(<Component />);
+      instance.setState({bogus: true});
+
+      expect(console.warn.mock.calls.length).toBe(1);
+      expect(console.warn.mock.calls[0][0]).toBe(
+        'Component.shouldComponentUpdate(): Returned undefined instead of a ' +
+        'boolean value. Make sure to return true or false.'
+      );
+    } finally {
+      console.warn = warn;
+    }
   });
 
   it('should warn when mispelling shouldComponentUpdate', function() {
