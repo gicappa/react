@@ -1,25 +1,19 @@
-"use strict";
+'use strict';
 
 jest.autoMockOff();
 
 describe('TodoStore', function() {
-  var TodoStore;
+  var store = TodoStore;
 
-  beforeEach(function() {
-    TodoStore = require('../TodoStore.js');
-  });
+  describe('create a new todo', function () {
 
-  it('creates a new item in the todo list', function() {
-    TodoStore.create('test todo');
-    var all = TodoStore.getAll() ,todos = Object.keys(all);
+    beforeEach(function() {
+      TodoStore.create("new fancy todo");
+    });
 
-    expect(all[todos[0]].text).toBe('test todo');
-  });
+    it('created ', function() {
+      
+    });
 
-  it('updates a new item in the todo list', function() {
-TodoStore.create('test todo');
-var all = TodoStore.getAll() ,todos = Object.keys(all);
-
-expect(all[todos[0]].text).toBe('test todo');
-  });
+  })
 });
