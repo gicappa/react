@@ -1,7 +1,6 @@
 ---
 id: videos
 title: Videos
-layout: docs
 permalink: videos.html
 prev: thinking-in-react.html
 next: complementary-tools.html
@@ -25,6 +24,13 @@ A [tagtree.tv](http://tagtree.tv/) video conveying the principles of [Thinking i
 <iframe width="560" height="315" src="//www.youtube.com/embed/h3KksH8gfcQ" frameborder="0" allowfullscreen></iframe>
 
 "In this talk I’ll be discussing why we built a virtual DOM, how it compares to other systems, and its relevance to the future of browser technologies." -- [Pete Hunt](http://www.petehunt.net/)
+
+
+### Going big with React ###
+
+"On paper, all those JS frameworks look promising: clean implementations, quick code design, flawless execution. But what happens when you stress test Javascript? What happens when you throw 6 megabytes of code at it? In this talk, we'll investigate how React performs in a high stress situation, and how it has helped our team build safe code on a massive scale."
+<figure>[![](https://i.vimeocdn.com/video/481670116_650.jpg)](https://skillsmatter.com/skillscasts/5429-going-big-with-react#video)</figure>
+
 
 ### CodeWinds
 
@@ -90,6 +96,11 @@ A [tagtree.tv](http://tagtree.tv/) video conveying the principles of [Thinking i
 
 By [Tom Occhino](http://tomocchino.com/) and [Jordan Walke](https://github.com/jordwalke)
 
+### Backbone + React + Middleman Screencast
+<iframe width="650" height="315" src="//www.youtube.com/embed/iul1fWHVU6A" frameborder="0" allowfullscreen></iframe>
+
+Backbone is a great way in interface a REST API with React. This screencast shows how to integate the two using [Backbone-React-Component](https://github.com/magalhas/backbone-react-component). Middleman is the framework used in this example but could easily be replaced with other frameworks. A supported template of this can be found [here](https://github.com/jbhatab/middleman-backbone-react-template). -- [Open Minded Innovations](http://www.openmindedinnovations.com/)
+
 ### Developing User Interfaces With React - Super VanJS
 
 <iframe width="650" height="315" src="//www.youtube.com/embed/1OeXsL5mr4g" frameborder="0" allowfullscreen></iframe>
@@ -115,3 +126,17 @@ by [Stoyan Stefanov](http://www.phpied.com/)
 ### "Rethinking Web App Development at Facebook" - Facebook F8 Conference 2014
 
 <iframe width="650" height="315" src="//www.youtube.com/embed/nYkdrAPrdcw" frameborder="0" allowfullscreen></iframe>
+
+### React and Flux: Building Applications with a Unidirectional Data Flow - Forward JS 2014
+
+<iframe width="650" height="315" src="//www.youtube.com/embed/i__969noyAM" frameborder="0" allowfullscreen></iframe>
+
+Facebook engineers [Bill Fisher](http://twitter.com/fisherwebdev) and [Jing Chen](http://twitter.com/jingc) talk about Flux and React, and how using an application architecture with a unidirectional data flow cleans up a lot of their code.
+
+### Server-Side Rendering of Isomorphic Apps at SoundCloud
+
+<iframe src="//player.vimeo.com/video/108488724" width="500" height="281" frameborder="0" allowfullscreen></iframe>
+
+Walk-through by [Andres Suarez](https://github.com/zertosh) on how [SoundCloud](https://developers.soundcloud.com/blog/) is using React and Flux for server-side rendering.
+
+[Slides and sample code](https://github.com/zertosh/ssr-demo-kit)

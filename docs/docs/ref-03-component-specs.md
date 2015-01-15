@@ -1,7 +1,6 @@
 ---
 id: component-specs
 title: Component Specs and Lifecycle
-layout: docs
 permalink: component-specs.html
 prev: component-api.html
 next: tags-and-attributes.html
@@ -42,9 +41,9 @@ Invoked once before the component is mounted. The return value will be used as t
 object getDefaultProps()
 ```
 
-Invoked once when the component is mounted. Values in the mapping will be set on `this.props` if that prop is not specified by the parent component (i.e. using an `in` check).
+Invoked once and cached when the class is created. Values in the mapping will be set on `this.props` if that prop is not specified by the parent component (i.e. using an `in` check).
 
-This method is invoked before `getInitialState` and therefore cannot rely on `this.state` or use `this.setState`.
+This method is invoked before any instances are created and thus cannot rely on `this.props`. In addition, be aware that any complex objects returned by `getDefaultProps()` will be shared across instances, not copied.
 
 
 ### propTypes
@@ -96,7 +95,7 @@ Methods defined within this block are _static_, meaning that you can run them be
 string displayName
 ```
 
-The `displayName` string is used in debugging messages. JSX sets this value automatically, see [JSX in Depth](/react/docs/jsx-in-depth.html#react-composite-components).
+The `displayName` string is used in debugging messages. JSX sets this value automatically; see [JSX in Depth](/react/docs/jsx-in-depth.html#react-composite-components).
 
 
 ## Lifecycle Methods
@@ -119,7 +118,7 @@ Invoked once, both on the client and server, immediately before the initial rend
 componentDidMount()
 ```
 
-Invoked immediately after rendering occurs, only on the client (not on the server). At this point in the lifecycle, the component has a DOM representation which you can access via `this.getDOMNode()`.
+Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point in the lifecycle, the component has a DOM representation which you can access via `this.getDOMNode()`.
 
 If you want to integrate with other JavaScript frameworks, set timers using `setTimeout` or `setInterval`, or send AJAX requests, perform those operations in this method.
 
@@ -164,7 +163,7 @@ transition to the new props and state will not require a component update.
 
 ```javascript
 shouldComponentUpdate: function(nextProps, nextState) {
-  return !equal(nextProps, this.props) || !equal(nextState, this.state);
+  return nextProps.id !== this.props.id;
 }
 ```
 
@@ -196,7 +195,7 @@ Use this as an opportunity to perform preparation before an update occurs.
 componentDidUpdate(object prevProps, object prevState)
 ```
 
-Invoked immediately after updating occurs. This method is not called for the initial render.
+Invoked immediately after the component's updates are flushed to the DOM. This method is not called for the initial render.
 
 Use this as an opportunity to operate on the DOM when the component has been updated.
 

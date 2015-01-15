@@ -1,6 +1,5 @@
 'use strict';
 
-var exec = require('child_process').exec;
 var jsxTask = require('./grunt/tasks/jsx');
 var browserifyTask = require('./grunt/tasks/browserify');
 var populistTask = require('./grunt/tasks/populist');
@@ -12,6 +11,7 @@ var releaseTasks = require('./grunt/tasks/release');
 var npmReactTasks = require('./grunt/tasks/npm-react');
 var npmReactToolsTasks = require('./grunt/tasks/npm-react-tools');
 var versionCheckTask = require('./grunt/tasks/version-check');
+var gemReactSourceTasks = require('./grunt/tasks/gem-react-source');
 
 module.exports = function(grunt) {
 
@@ -37,8 +37,28 @@ module.exports = function(grunt) {
     .filter(function(npmTaskName) { return npmTaskName != 'grunt-cli'; })
     .forEach(function(npmTaskName) { grunt.loadNpmTasks(npmTaskName); });
 
-  // Alias 'jshint' to 'lint' to better match the workflow we know
-  grunt.registerTask('lint', ['jshint']);
+  // Super simplified eslint task that we can use to replace linting. This just
+  // shells out to eslint.
+  grunt.registerTask('eslint', function() {
+    var done = this.async();
+    grunt.util.spawn({
+      cmd: 'node_modules/.bin/eslint',
+      args: ['src']
+    }, function(err, result, code) {
+      if (code === 0) {
+        grunt.log.ok('Lint passed (but may contain warnings)');
+      } else {
+        grunt.log.error('Lint failed');
+      }
+      if (result.stdout.length) {
+        grunt.log.writeln(result.stdout);
+      }
+
+      done(code === 0);
+    });
+  });
+
+  grunt.registerTask('lint', ['eslint']);
 
   grunt.registerTask('download-previous-version', require('./grunt/tasks/download-previous-version.js'));
 
@@ -66,7 +86,10 @@ module.exports = function(grunt) {
 
   grunt.registerTask('npm-react:release', npmReactTasks.buildRelease);
   grunt.registerTask('npm-react:pack', npmReactTasks.packRelease);
-  grunt.registerTask('npm-react-tools:pack', npmReactToolsTasks.pack);
+  grunt.registerTask('npm-react-tools:release', npmReactToolsTasks.buildRelease);
+  grunt.registerTask('npm-react-tools:pack', npmReactToolsTasks.packRelease);
+  grunt.registerTask('gem-react-source:release', gemReactSourceTasks.buildRelease);
+  grunt.registerTask('gem-react-source:pack', gemReactSourceTasks.packRelease);
 
   grunt.registerTask('version-check', versionCheckTask);
 
@@ -95,6 +118,7 @@ module.exports = function(grunt) {
     'populist:test'
   ]);
   grunt.registerTask('build:npm-react', ['version-check', 'jsx:normal', 'npm-react:release']);
+  grunt.registerTask('build:gem-react-source', ['build', 'gem-react-source:release']);
 
   grunt.registerTask('webdriver-phantomjs', webdriverPhantomJSTask);
 
@@ -157,7 +181,8 @@ module.exports = function(grunt) {
     'sauce-tunnel',
     'webdriver-jasmine:saucelabs_android',
     'webdriver-jasmine:saucelabs_firefox',
-    'webdriver-jasmine:saucelabs_chrome'
+    'webdriver-jasmine:saucelabs_chrome',
+    'webdriver-jasmine:saucelabs_ie11'
   ]);
 
   grunt.registerTask('test:webdriver:saucelabs:ie', [
@@ -219,6 +244,7 @@ module.exports = function(grunt) {
     'browserify:addonsMin',
     'npm-react:release',
     'npm-react:pack',
+    'npm-react-tools:release',
     'npm-react-tools:pack',
     'copy:react_docs',
     'compare_size'
@@ -235,21 +261,14 @@ module.exports = function(grunt) {
     'release:setup',
     'clean',
     'build',
-    'gem:only',
+    'gem-react-source:release',
+    'gem-react-source:pack',
     'release:bower',
     'release:starter',
     'compress',
     'release:docs',
     'release:msg'
   ]);
-
-  // `gem` task to build the react-source gem
-  grunt.registerTask('gem', ['build', 'gem:only']);
-
-  grunt.registerTask('gem:only', function() {
-    var done = this.async();
-    exec('gem build react-source.gemspec', done);
-  });
 
   // The default task - build - to keep setup easy
   grunt.registerTask('default', ['build']);

@@ -1,32 +1,17 @@
 /**
- * Copyright 2013-2014 Facebook, Inc.
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule PooledClass
  */
 
-"use strict";
+'use strict';
 
 var invariant = require('invariant');
-
-var ABOUT_POOLING_MESSAGE = null;
-if (__DEV__) {
-  ABOUT_POOLING_MESSAGE = (
-    'This object is reused for performance reasons. If you\'re seeing this ' +
-    'after logging an object, try logging individual properties.'
-  );
-}
 
 /**
  * Static poolers. Several custom versions for each potential number of
@@ -37,54 +22,46 @@ if (__DEV__) {
  */
 var oneArgumentPooler = function(copyFieldsFrom) {
   var Klass = this;
-  var instance;
   if (Klass.instancePool.length) {
-    instance = Klass.instancePool.pop();
+    var instance = Klass.instancePool.pop();
     Klass.call(instance, copyFieldsFrom);
+    return instance;
   } else {
-    instance = new Klass(copyFieldsFrom);
+    return new Klass(copyFieldsFrom);
   }
-  instance._ABOUT_POOLING = null;
-  return instance;
 };
 
 var twoArgumentPooler = function(a1, a2) {
   var Klass = this;
-  var instance;
   if (Klass.instancePool.length) {
-    instance = Klass.instancePool.pop();
+    var instance = Klass.instancePool.pop();
     Klass.call(instance, a1, a2);
+    return instance;
   } else {
-    instance = new Klass(a1, a2);
+    return new Klass(a1, a2);
   }
-  instance._ABOUT_POOLING = null;
-  return instance;
 };
 
 var threeArgumentPooler = function(a1, a2, a3) {
   var Klass = this;
-  var instance;
   if (Klass.instancePool.length) {
-    instance = Klass.instancePool.pop();
+    var instance = Klass.instancePool.pop();
     Klass.call(instance, a1, a2, a3);
+    return instance;
   } else {
-    instance = new Klass(a1, a2, a3);
+    return new Klass(a1, a2, a3);
   }
-  instance._ABOUT_POOLING = null;
-  return instance;
 };
 
 var fiveArgumentPooler = function(a1, a2, a3, a4, a5) {
   var Klass = this;
-  var instance;
   if (Klass.instancePool.length) {
-    instance = Klass.instancePool.pop();
+    var instance = Klass.instancePool.pop();
     Klass.call(instance, a1, a2, a3, a4, a5);
+    return instance;
   } else {
-    instance = new Klass(a1, a2, a3, a4, a5);
+    return new Klass(a1, a2, a3, a4, a5);
   }
-  instance._ABOUT_POOLING = null;
-  return instance;
 };
 
 var standardReleaser = function(instance) {
@@ -96,7 +73,6 @@ var standardReleaser = function(instance) {
   if (instance.destructor) {
     instance.destructor();
   }
-  instance._ABOUT_POOLING = ABOUT_POOLING_MESSAGE;
   if (Klass.instancePool.length < Klass.poolSize) {
     Klass.instancePool.push(instance);
   }

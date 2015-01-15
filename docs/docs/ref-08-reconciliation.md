@@ -1,12 +1,12 @@
 ---
 id: reconciliation
 title: Reconciliation
-layout: docs
 permalink: reconciliation.html
 prev: special-non-dom-attributes.html
+next: glossary.html
 ---
 
-React key design decision is to make the API seem like it re-renders the whole app on every update. This makes writing applications a lot easier but is also an incredible challenge to make it tractable. This article explains how with powerful heuristics we managed to turn a O(n<sup>3</sup>) problem into a O(n) one.
+React's key design decision is to make the API seem like it re-renders the whole app on every update. This makes writing applications a lot easier but is also an incredible challenge to make it tractable. This article explains how with powerful heuristics we managed to turn a O(n<sup>3</sup>) problem into a O(n) one.
 
 
 ## Motivation
@@ -76,7 +76,7 @@ After the attributes have been updated, we recurse on all the children.
 
 ### Custom Components
 
-We decided that the two custom components are the same. Since components are stateful, we cannot just use the new component and call it a day. React takes all the attributes from the new component and call `component[Will/Did]ReceiveProps()` on the previous one.
+We decided that the two custom components are the same. Since components are stateful, we cannot just use the new component and call it a day. React takes all the attributes from the new component and calls `component[Will/Did]ReceiveProps()` on the previous one.
 
 The previous component is now operational. Its `render()` method is called and the diff algorithm restarts with the new result and the previous result.
 
@@ -85,7 +85,7 @@ The previous component is now operational. Its `render()` method is called and t
 
 ### Problematic Case
 
-In order to do children reconciliation, React adopts a very naive approach. It goes over the list of children both at the same time and whenever there's a difference generates a mutation.
+In order to do children reconciliation, React adopts a very naive approach. It goes over both lists of children at the same time and generates a mutation whenever there's a difference.
 
 For example if you add an element at the end:
 
@@ -116,18 +116,18 @@ renderB: <div><span key="second">second</span><span key="first">first</span></di
 => [insertNode <span>second</span>]
 ```
 
-In practice, finding a key is not really hard. Most of the time, the element you are going to display already have a unique id. When it is not the case, you can hash some parts of the content to generate an id. Remember that the id only has to be unique among its sibling, not globally unique.
+In practice, finding a key is not really hard. Most of the time, the element you are going to display already has a unique id. When that's not the case, you can add a new ID property to your model or hash some parts of the content to generate a key. Remember that the key only has to be unique among its siblings, not globally unique.
 
 
 ## Trade-offs
 
 It is important to remember that the reconciliation algorithm is an implementation detail. React could re-render the whole app on every action, the end-result would be the same. We are regularly refining the heuristics in order to make common use cases faster.
 
-In the current implementation, you can express the fact that a sub-tree has been moved between siblings, but you cannot tell that it has moved somewhere else. The algorithm will re-render that full sub-tree.
+In the current implementation, you can express the fact that a sub-tree has been moved amongst its siblings, but you cannot tell that it has moved somewhere else. The algorithm will re-render that full sub-tree.
 
 Because we rely on two heuristics, if the assumptions behind them are not met, performance will suffer.
 
 1. The algorithm will not try to match sub-trees of different components classes. If you see yourself alternating between two components classes with very similar output, you may want to make it the same class. In practice, we haven't found this to be an issue.
 
-2. If you don't provide stable keys (by using Math.random() for example), all the sub-trees are going to be re-rendered every single time. By giving the users the choice to chose the key, they have the ability to shoot themselves in the foot.
+2. If you don't provide stable keys (by using Math.random() for example), all the sub-trees are going to be re-rendered every single time. By giving the users the choice to choose the key, they have the ability to shoot themselves in the foot.
 

@@ -2,32 +2,51 @@
 
 var visitors = require('./vendor/fbtransform/visitors');
 var transform = require('jstransform').transform;
+var typesSyntax = require('jstransform/visitors/type-syntax');
 var Buffer = require('buffer').Buffer;
 
 module.exports = {
   transform: function(input, options) {
-    options = options || {};
-    var visitorList = getVisitors(options.harmony);
-    var result = transform(visitorList, input, options);
-    var output = result.code;
-    if (options.sourceMap) {
+    var output = innerTransform(input, options);
+    var result = output.code;
+    if (options && options.sourceMap) {
       var map = inlineSourceMap(
-        result.sourceMap,
+        output.sourceMap,
         input,
         options.sourceFilename
       );
-      output += '\n' + map;
+      result += '\n' + map;
     }
-    return output;
+    return result;
+  },
+  transformWithDetails: function(input, options) {
+    var output = innerTransform(input, options);
+    var result = {};
+    result.code = output.code;
+    if (options && options.sourceMap) {
+      result.sourceMap = output.sourceMap.toJSON();
+    }
+    return result;
   }
 };
 
-function getVisitors(harmony) {
-  if (harmony) {
-    return visitors.getAllVisitors();
-  } else {
-    return visitors.transformVisitors.react;
+function innerTransform(input, options) {
+  options = options || {};
+
+  var visitorSets = ['react'];
+  if (options.harmony) {
+    visitorSets.push('harmony');
   }
+  if (options.stripTypes) {
+    // Stripping types needs to happen before the other transforms
+    // unfortunately, due to bad interactions. For example,
+    // es6-rest-param-visitors conflict with stripping rest param type
+    // annotation
+    input = transform(typesSyntax.visitorList, input, options).code;
+  }
+
+  var visitorList = visitors.getVisitorsBySet(visitorSets);
+  return transform(visitorList, input, options);
 }
 
 function inlineSourceMap(sourceMap, sourceCode, sourceFilename) {

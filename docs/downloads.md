@@ -71,10 +71,12 @@ If you're using an npm-compatible packaging system like browserify or webpack, y
 
 ```js
 var React = require('react');
-React.renderComponent(...);
+React.render(...);
 ```
 
 If you'd like to use any [add-ons](/react/docs/addons.html), use `var React = require('react/addons');` instead.
+
+**Note:** by default, React will be in development mode. To use React in production mode, set the environment variable `NODE_ENV` to `production`. A minifier that performs dead-code elimination such as [UglifyJS](https://github.com/mishoo/UglifyJS2) is recommended to completely remove the extra code present in development mode.
 
 ## Bower
 
